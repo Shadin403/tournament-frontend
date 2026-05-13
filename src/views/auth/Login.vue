@@ -127,7 +127,7 @@ async function handleLogin() {
   error.value = ''
   try {
     await authStore.login(form.value)
-    const redirect = route.query.redirect || (authStore.isAdmin ? '/admin/dashboard' : '/dashboard')
+    const redirect = route.query.redirect || (authStore.isAdmin ? '/admin/dashboard' : '/')
     router.push(redirect)
   } catch (err) {
     error.value = err.response?.data?.message || 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।'

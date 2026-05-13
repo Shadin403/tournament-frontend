@@ -112,8 +112,8 @@ async function handleRegister() {
 
   try {
     await authStore.register(form.value)
-    success.value = 'রেজিস্ট্রেশন সফল! ড্যাশবোর্ডে নিয়ে যাচ্ছি...'
-    setTimeout(() => router.push('/dashboard'), 1500)
+    success.value = 'রেজিস্ট্রেশন সফল! Home এ নিয়ে যাচ্ছি...'
+    setTimeout(() => router.push('/'), 1500)
   } catch (err) {
     const data = err.response?.data
     if (data?.errors) {
