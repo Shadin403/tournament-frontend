@@ -34,20 +34,24 @@ const layout = computed(() => {
 </script>
 
 <template>
-  <VApp>
-    <div v-if="!authStore.initialized" class="d-flex align-center justify-center" style="height: 100vh; background: #121212;">
+  <!-- Loading screen with its own VApp context -->
+  <VApp v-if="!authStore.initialized" style="height: 100vh; background: #121212;">
+    <div class="d-flex align-center justify-center h-100">
       <div class="text-center">
         <VProgressCircular indeterminate color="primary" size="64" width="6" />
         <div class="mt-4 text-white font-weight-bold">Loading Tunament...</div>
       </div>
     </div>
+  </VApp>
 
-    <component v-else :is="layout">
+  <template v-else>
+    <!-- Layout component (AdminLayout will have its own VApp, UserLayout won't) -->
+    <component :is="layout">
       <router-view />
     </component>
 
-    <!-- Global Modals -->
+    <!-- Global Modals (These use custom CSS/Tailwind, not Vuetify) -->
     <LoginModal />
     <DepositModal />
-  </VApp>
+  </template>
 </template>

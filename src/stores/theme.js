@@ -3,7 +3,22 @@ import { ref } from 'vue'
 import api from '@/services/api'
 
 export const useThemeStore = defineStore('theme', () => {
-  const theme = ref({})
+  const theme = ref({
+    primary_color:   '#A0C878',
+    primary_dark:    '#74992E',
+    secondary_color: '#DDEB9D',
+    bg_page:         '#FFFDF6',
+    bg_card:         '#FAF6E9',
+    text_primary:    '#1A1A1A',
+    text_secondary:  '#4A4A4A',
+    text_muted:      '#8E8E8E',
+    accent_green:    '#A0C878',
+    accent_red:      '#E74C3C',
+    accent_blue:     '#5D9C59',
+    font_display:    'Outfit',
+    font_body:       'Inter',
+    site_name:       'BATTLEZONE',
+  })
   const loaded = ref(false)
 
   // Default fallback values

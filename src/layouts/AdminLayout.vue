@@ -6,13 +6,15 @@ const authStore = useAuthStore()
 </script>
 
 <template>
-  <DefaultLayoutWithVerticalNav>
-    <RouterView v-slot="{ Component }">
-      <transition name="fade-slide" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </RouterView>
-  </DefaultLayoutWithVerticalNav>
+  <VApp>
+    <DefaultLayoutWithVerticalNav>
+      <RouterView v-slot="{ Component }">
+        <transition name="fade-slide" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </RouterView>
+    </DefaultLayoutWithVerticalNav>
+  </VApp>
 </template>
 
 <style lang="scss">
