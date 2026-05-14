@@ -4,13 +4,17 @@
     <!-- ── Welcome Row ───────────────────────────────────────────────── -->
     <div class="welcome-row">
       <div>
-        <h1 class="welcome-name">Welcome, {{ firstName }}! 👋</h1>
+        <h1 class="welcome-name">Welcome{{ isLoggedIn ? ', ' + firstName : '' }}! 👋</h1>
         <p class="welcome-sub">Find and join tournaments</p>
       </div>
-      <router-link to="/wallet" class="wallet-chip">
+      <a v-if="isLoggedIn" href="/wallet" @click.prevent="guardedPush('/wallet')" class="wallet-chip">
         <Wallet :size="13" />
         ৳{{ walletTotal }}
-      </router-link>
+      </a>
+      <button v-else @click="openLoginModal()" class="wallet-chip">
+        <LogIn :size="13" />
+        Login
+      </button>
     </div>
 
     <!-- ── Banner Slider (Dynamic) ───────────────────────────────────── -->
@@ -31,10 +35,10 @@
               <p class="banner-tag">{{ banners[current].tag }}</p>
               <h2 class="banner-title">{{ banners[current].title }}</h2>
               <p v-if="banners[current].subtitle" class="banner-subtitle">{{ banners[current].subtitle }}</p>
-              <router-link :to="banners[current].link || '/matches'" class="banner-cta">
+              <a :href="banners[current].link || '/matches'" @click.prevent="guardedPush(banners[current].link || '/matches')" class="banner-cta">
                 <Swords :size="14" />
                 {{ banners[current].button_text || 'Join Now' }}
-              </router-link>
+              </a>
             </div>
           </div>
         </transition>
@@ -68,9 +72,9 @@
           <LayoutGrid :size="15" style="color: var(--color-neon-orange);" />
           <h2 class="section-title">Game Modes</h2>
         </div>
-        <router-link to="/matches" class="section-link">
+        <a href="/matches" @click.prevent="guardedPush('/matches')" class="section-link">
           View All <ChevronRight :size="13" />
-        </router-link>
+        </a>
       </div>
 
       <!-- Loading skeleton -->
@@ -80,16 +84,15 @@
 
       <!-- Actual modes -->
       <div v-else-if="gameModes.length" class="categories-grid">
-        <router-link
-          v-for="mode in gameModes" :key="mode.id"
-          :to="`/matches?mode=${mode.slug}`"
-          class="category-card">
+        <a v-for="mode in gameModes" :key="mode.id"
+           :href="`/matches?mode=${mode.slug}`"
+           @click.prevent="guardedPush(`/matches?mode=${mode.slug}`)"
+           class="category-card">
           <img :src="mode.image_url || '/img/cat_br_match.png'" :alt="mode.name" />
           <div class="category-overlay" />
           <div v-if="mode.badge" class="category-badge" :style="`background: ${mode.badge_color};`">
             {{ mode.badge }}
           </div>
-          <!-- Active match count pill -->
           <div v-if="mode.active_matches_count > 0" class="category-count">
             {{ mode.active_matches_count }} live
           </div>
@@ -97,7 +100,7 @@
             <p class="category-game">{{ mode.game }}</p>
             <p class="category-name">{{ mode.name }}</p>
           </div>
-        </router-link>
+        </a>
       </div>
 
       <!-- Empty -->
@@ -137,13 +140,14 @@
         </div>
       </div>
       <div class="actions-grid">
-        <router-link v-for="action in quickActions" :key="action.to" :to="action.to"
-                     class="action-card">
+        <a v-for="action in quickActions" :key="action.to"
+           :href="action.to" @click.prevent="guardedPush(action.to)"
+           class="action-card">
           <div class="action-icon" :style="`background: ${action.bg}; border-color: ${action.border};`">
             <component :is="action.icon" :size="16" :style="`color: ${action.color};`" />
           </div>
           <span class="action-label">{{ action.label }}</span>
-        </router-link>
+        </a>
       </div>
     </div>
 
@@ -152,17 +156,23 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalletStore } from '@/stores/wallet'
+import { useLoginModal } from '@/composables/useLoginModal'
 import api from '@/services/api'
 import {
   Wallet, ChevronLeft, ChevronRight, LayoutGrid, TrendingUp,
   Users, Swords, Trophy, Coins, Zap, Loader2, ImageIcon,
-  ArrowDownCircle, ArrowUpCircle, Gift, BarChart2
+  ArrowDownCircle, ArrowUpCircle, Gift, BarChart2, LogIn
 } from 'lucide-vue-next'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
+const { open: openLoginModal } = useLoginModal()
+
+const isLoggedIn = computed(() => authStore.isAuthenticated)
 
 const loading = ref(true)
 const banners = ref([])
@@ -175,6 +185,15 @@ const walletTotal = computed(() => {
   if (!w) return '0.00'
   return (parseFloat(w.main_balance || 0) + parseFloat(w.winning_balance || 0) + parseFloat(w.bonus_balance || 0)).toFixed(2)
 })
+
+// Auth-guarded navigation
+function guardedPush(to) {
+  if (isLoggedIn.value) {
+    router.push(to)
+  } else {
+    openLoginModal(to)
+  }
+}
 
 // ── Banner Slider ─────────────────────────────────────────────────────
 const current = ref(0)
@@ -213,7 +232,7 @@ function formatK(n) {
 }
 
 onMounted(async () => {
-  if (!walletStore.wallet) walletStore.fetchWallet()
+  if (isLoggedIn.value && !walletStore.wallet) walletStore.fetchWallet()
 
   // Fetch home data (banners + game modes)
   try {

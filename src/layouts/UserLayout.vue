@@ -13,25 +13,39 @@
 
         <!-- Desktop Nav Links (hidden on mobile) -->
         <nav class="desktop-nav">
-          <router-link v-for="link in desktopLinks" :key="link.to"
-                       :to="link.to" class="desktop-nav-link"
-                       :class="{ active: isActive(link.to) }">
+          <a v-for="link in desktopLinks" :key="link.to"
+             :href="link.to"
+             @click.prevent="handleNavClick(link.to)"
+             class="desktop-nav-link"
+             :class="{ active: isActive(link.to) }">
             <component :is="link.icon" :size="16" />
             {{ link.label }}
-          </router-link>
+          </a>
         </nav>
 
         <div class="top-right">
-          <router-link to="/wallet" class="wallet-chip">
-            <Wallet :size="13" />
-            <span>৳{{ walletTotal }}</span>
-          </router-link>
+          <!-- Logged in: wallet + avatar -->
+          <template v-if="isLoggedIn">
+            <a href="/wallet" @click.prevent="handleNavClick('/wallet')" class="wallet-chip">
+              <Wallet :size="13" />
+              <span>৳{{ walletTotal }}</span>
+            </a>
+            <span class="username-text">{{ authStore.user?.username }}</span>
+            <router-link to="/profile" class="avatar-link">
+              <img :src="avatarUrl" alt="Avatar" />
+            </router-link>
+          </template>
 
-          <span class="username-text">{{ authStore.user?.username }}</span>
-
-          <router-link to="/profile" class="avatar-link">
-            <img :src="avatarUrl" alt="Avatar" />
-          </router-link>
+          <!-- Guest: Login button -->
+          <template v-else>
+            <button @click="openLoginModal()" class="login-btn">
+              <LogIn :size="14" />
+              লগইন
+            </button>
+            <router-link to="/register" class="register-btn">
+              রেজিস্টার
+            </router-link>
+          </template>
         </div>
       </div>
     </header>
@@ -43,30 +57,39 @@
 
     <!-- ── Bottom Tab Bar (mobile only) ───────────────────────────────── -->
     <nav class="bottom-bar">
-      <router-link
-        v-for="tab in tabs"
-        :key="tab.to"
-        :to="tab.to"
-        class="tab-item"
-        :class="{ 'tab-active': isActive(tab.to) }">
+      <a v-for="tab in tabs" :key="tab.to"
+         :href="tab.to"
+         @click.prevent="handleNavClick(tab.to)"
+         class="tab-item"
+         :class="{ 'tab-active': isActive(tab.to) }">
         <div v-if="isActive(tab.to)" class="tab-indicator" />
         <component :is="tab.icon" :size="20" :stroke-width="isActive(tab.to) ? 2.5 : 1.8" />
         <span class="tab-label">{{ tab.label }}</span>
-      </router-link>
+      </a>
     </nav>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalletStore } from '@/stores/wallet'
-import { Zap, Wallet, Home, Swords, CreditCard, Trophy, User, BarChart2 } from 'lucide-vue-next'
+import { useLoginModal } from '@/composables/useLoginModal'
+import { useDepositModal } from '@/composables/useDepositModal'
+import { Zap, Wallet, Home, Swords, CreditCard, Trophy, User, BarChart2, LogIn } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const route = useRoute()
+const router = useRouter()
+const { open: openLoginModal } = useLoginModal()
+const { open: openDepositModal } = useDepositModal()
+
+const isLoggedIn = computed(() => authStore.isAuthenticated)
+
+// Pages that don't need auth (public)
+const publicPaths = ['/', '/login', '/register']
 
 const tabs = [
   { to: '/',           icon: Home,       label: 'Home' },
@@ -89,6 +112,23 @@ function isActive(path) {
   return route.path.startsWith(path)
 }
 
+/**
+ * If the target is a public page (like /), navigate normally.
+ * Otherwise, check auth — if not logged in, open login modal.
+ */
+function handleNavClick(to) {
+  if (to === '/wallet' && isLoggedIn.value) {
+    openDepositModal()
+    return
+  }
+  
+  if (publicPaths.includes(to) || isLoggedIn.value) {
+    router.push(to)
+  } else {
+    openLoginModal(to)
+  }
+}
+
 const walletTotal = computed(() => {
   const w = walletStore.wallet
   if (!w) return '0.00'
@@ -102,7 +142,7 @@ const avatarUrl = computed(() =>
 )
 
 onMounted(() => {
-  if (authStore.isAuthenticated && !walletStore.wallet) {
+  if (isLoggedIn.value && !walletStore.wallet) {
     walletStore.fetchWallet()
   }
 })
@@ -114,7 +154,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-bg-darkest);
+  background-color: var(--color-bg-page);
   font-family: var(--font-body);
 }
 
@@ -125,8 +165,8 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 50;
-  height: 56px;
-  background: rgba(10, 10, 15, 0.95);
+  height: 60px;
+  background: rgba(255, 253, 246, 0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border-subtle);
 }
@@ -180,6 +220,7 @@ onMounted(() => {
   color: var(--color-text-muted);
   text-decoration: none;
   transition: all 0.2s;
+  cursor: pointer;
 }
 .desktop-nav-link:hover {
   color: var(--color-text-secondary);
@@ -200,13 +241,13 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 9999px;
   font-size: 0.82rem;
   font-weight: 700;
-  background: rgba(255, 69, 0, 0.15);
-  border: 1px solid rgba(255, 69, 0, 0.35);
-  color: var(--color-neon-orange);
+  background: rgba(160, 200, 120, 0.15);
+  border: 1px solid rgba(160, 200, 120, 0.35);
+  color: var(--color-primary);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -225,11 +266,46 @@ onMounted(() => {
   display: block;
 }
 
+/* Guest buttons */
+.login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--color-neon-orange), var(--color-neon-red));
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 69, 0, 0.4);
+}
+.register-btn {
+  display: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-neon-orange);
+  background: rgba(255, 69, 0, 0.1);
+  border: 1px solid rgba(255, 69, 0, 0.3);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.register-btn:hover {
+  background: rgba(255, 69, 0, 0.18);
+}
+
 /* ─── Page Content ────────────────────────────────────────────────────── */
 .page-content {
   flex: 1;
   padding-top: 56px;
-  padding-bottom: 64px;   /* space for bottom bar */
+  padding-bottom: 64px;
   overflow-y: auto;
 }
 
@@ -242,10 +318,11 @@ onMounted(() => {
   z-index: 50;
   display: flex;
   align-items: stretch;
-  height: 60px;
-  background: rgba(10, 10, 15, 0.97);
+  height: 65px;
+  background: rgba(255, 253, 246, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--color-border-subtle);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .tab-item {
   flex: 1;
@@ -258,6 +335,7 @@ onMounted(() => {
   color: var(--color-text-muted);
   text-decoration: none;
   transition: color 0.2s;
+  cursor: pointer;
 }
 .tab-item.tab-active {
   color: var(--color-neon-orange);
@@ -280,9 +358,7 @@ onMounted(() => {
 }
 
 
-/* ═════════════════════════════════════════════════════════════════════
-   Tablet: ≥768px
-   ═════════════════════════════════════════════════════════════════════ */
+/* ═══ Tablet: ≥768px ═════════════════════════════════════════════════ */
 @media (min-width: 768px) {
   .top-bar-inner {
     padding: 0 24px;
@@ -290,12 +366,13 @@ onMounted(() => {
   .username-text {
     display: block;
   }
+  .register-btn {
+    display: inline-block;
+  }
 }
 
 
-/* ═════════════════════════════════════════════════════════════════════
-   Desktop: ≥1024px — show top nav links, hide bottom bar
-   ═════════════════════════════════════════════════════════════════════ */
+/* ═══ Desktop: ≥1024px ═══════════════════════════════════════════════ */
 @media (min-width: 1024px) {
   .desktop-nav {
     display: flex;
@@ -304,7 +381,7 @@ onMounted(() => {
     display: none;
   }
   .page-content {
-    padding-bottom: 24px;   /* no bottom bar anymore */
+    padding-bottom: 24px;
   }
   .top-bar-inner {
     padding: 0 20px;

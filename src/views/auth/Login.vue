@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden"
-       style="background-color: var(--color-bg-darkest);">
+       style="background-color: var(--color-bg-page);">
 
     <!-- Background Effects -->
     <div class="absolute inset-0" style="background: radial-gradient(ellipse at 30% 50%, rgba(255,69,0,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(155,48,255,0.06) 0%, transparent 50%);" />

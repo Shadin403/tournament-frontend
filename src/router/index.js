@@ -29,22 +29,23 @@ const AdminUsers = () => import('@/views/admin/Users.vue')
 const AdminMatches = () => import('@/views/admin/Matches.vue')
 const AdminDeposits = () => import('@/views/admin/Deposits.vue')
 const AdminWithdrawals = () => import('@/views/admin/Withdrawals.vue')
+const AdminGateways = () => import('@/views/admin/Gateways.vue')
 
 const routes = [
   // ── Auth (guest only) ──────────────────────────────────────────────
   { path: '/login',          component: Login,          name: 'login',          meta: { layout: 'auth', guestOnly: true } },
-  { path: '/register',       component: Register,       name: 'register',       meta: { layout: 'auth', guestOnly: true } },
+  { path: '/register',       component: Register,       name: 'register',       meta: { guestOnly: true } },
   { path: '/forgot-password', component: ForgotPassword, name: 'forgot-password', meta: { layout: 'auth', guestOnly: true } },
 
   // ── User Panel (requires auth) ─────────────────────────────────────
-  { path: '/',               component: Home,           name: 'home',           meta: { requiresAuth: true } },
+  { path: '/',               component: Home,           name: 'home' },
   { path: '/dashboard',      component: Dashboard,      name: 'dashboard',      meta: { requiresAuth: true } },
   { path: '/wallet',         component: Wallet,         name: 'wallet',         meta: { requiresAuth: true } },
   { path: '/wallet/deposit', component: Deposit,        name: 'deposit',        meta: { requiresAuth: true } },
   { path: '/wallet/withdraw', component: Withdraw,      name: 'withdraw',       meta: { requiresAuth: true } },
   { path: '/wallet/transactions', component: Transactions, name: 'transactions', meta: { requiresAuth: true } },
-  { path: '/matches',        component: AllMatches,     name: 'matches',        meta: { requiresAuth: true } },
-  { path: '/matches/:id',    component: MatchDetails,   name: 'match-details',  meta: { requiresAuth: true } },
+  { path: '/matches',        component: AllMatches,     name: 'matches' },
+  { path: '/matches/:id',    component: MatchDetails,   name: 'match-details' },
   { path: '/my-matches',     component: MyMatches,      name: 'my-matches',     meta: { requiresAuth: true } },
   { path: '/tournaments',    component: Tournaments,    name: 'tournaments',    meta: { requiresAuth: true } },
   { path: '/tournaments/:id', component: TournamentDetails, name: 'tournament-details', meta: { requiresAuth: true } },
@@ -56,10 +57,17 @@ const routes = [
   // ── Admin Panel ────────────────────────────────────────────────────
   { path: '/admin',          redirect: '/admin/dashboard' },
   { path: '/admin/dashboard', component: AdminDashboard, name: 'admin-dashboard', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
-  { path: '/admin/users',    component: AdminUsers,     name: 'admin-users',    meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/staff',    component: AdminUsers,     name: 'admin-staff',    meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' }, props: { roleType: 'staff' } },
+  { path: '/admin/players',  component: AdminUsers,     name: 'admin-players',  meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' }, props: { roleType: 'player' } },
+  { path: '/admin/users',    redirect: '/admin/players' },
   { path: '/admin/matches',  component: AdminMatches,   name: 'admin-matches',  meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/matches/:id/players', component: () => import('@/views/admin/MatchPlayers.vue'), name: 'admin-match-players', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
   { path: '/admin/deposits', component: AdminDeposits,  name: 'admin-deposits', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
   { path: '/admin/withdrawals', component: AdminWithdrawals, name: 'admin-withdrawals', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/gateways',    component: AdminGateways,    name: 'admin-gateways',    meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/settings', component: () => import('@/views/admin/Settings.vue'), name: 'admin-settings', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/tables', component: () => import('@/views/admin/Tables.vue'), name: 'admin-tables', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
+  { path: '/admin/forms', component: () => import('@/views/admin/Forms.vue'), name: 'admin-forms', meta: { requiresAuth: true, requiresAdmin: true, layout: 'admin' } },
 
   // ── Catch-all ─────────────────────────────────────────────────────
   { path: '/:pathMatch(.*)*', redirect: '/' },

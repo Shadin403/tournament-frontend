@@ -1,91 +1,112 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden"
-       style="background-color: var(--color-bg-darkest);">
-
-    <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 30%, rgba(155,48,255,0.08) 0%, transparent 50%);" />
-
-    <div class="w-full max-w-lg relative z-10">
-      <div class="text-center mb-8">
-        <router-link to="/">
-          <h1 class="text-4xl font-black gradient-text-orange" style="font-family: var(--font-display); letter-spacing: 0.1em;">⚡ BATTLEZONE</h1>
-        </router-link>
-        <p class="mt-2" style="color: var(--color-text-secondary);">নতুন একাউন্ট তৈরি করুন — সম্পূর্ণ বিনামূল্যে</p>
+  <div class="register-container px-4 py-8 max-w-lg mx-auto">
+    
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4" 
+           style="background: var(--color-bg-card); border: 1px solid var(--color-border-subtle);">
+        <UserPlus :size="32" color="var(--color-primary)" />
       </div>
-
-      <div class="glass-card neon-border-purple p-8">
-        <h2 class="text-2xl font-bold mb-6" style="font-family: var(--font-display);">Register</h2>
-
-        <form @submit.prevent="handleRegister" class="flex flex-col gap-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">পুরো নাম *</label>
-              <input v-model="form.name" type="text" placeholder="আপনার নাম" class="input-dark" required :disabled="loading" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">Username *</label>
-              <input v-model="form.username" type="text" placeholder="player123" class="input-dark" required :disabled="loading" />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">Email *</label>
-            <input v-model="form.email" type="email" placeholder="your@email.com" class="input-dark" required :disabled="loading" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">Phone নম্বর *</label>
-            <input v-model="form.phone" type="tel" placeholder="01XXXXXXXXX" class="input-dark" required :disabled="loading" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">
-              Free Fire UID
-              <span style="color: var(--color-text-muted); font-weight: 400;">(optional)</span>
-            </label>
-            <input v-model="form.ff_uid" type="text" placeholder="আপনার FF UID" class="input-dark" :disabled="loading" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">পাসওয়ার্ড *</label>
-              <input v-model="form.password" type="password" placeholder="কমপক্ষে ৮ অক্ষর" class="input-dark" required :disabled="loading" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">কনফার্ম করুন *</label>
-              <input v-model="form.password_confirmation" type="password" placeholder="পাসওয়ার্ড আবার দিন" class="input-dark" required :disabled="loading" />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--color-text-secondary);">
-              Referral Code
-              <span style="color: var(--color-text-muted); font-weight: 400;">(optional)</span>
-            </label>
-            <input v-model="form.referral_code" type="text" placeholder="বন্ধুর রেফারেল কোড" class="input-dark" :disabled="loading" />
-          </div>
-
-          <!-- Errors -->
-          <div v-if="errors.length" class="p-3 rounded-lg" style="background: rgba(255,34,68,0.15); border: 1px solid rgba(255,34,68,0.3);">
-            <div v-for="err in errors" :key="err" class="text-sm" style="color: var(--color-neon-red);">⚠️ {{ err }}</div>
-          </div>
-
-          <!-- Success -->
-          <div v-if="success" class="p-3 rounded-lg text-sm" style="background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--color-neon-green);">
-            ✅ {{ success }}
-          </div>
-
-          <button type="submit" class="btn-neon w-full mt-2" :disabled="loading">
-            <span v-if="loading">⏳ রেজিস্ট্রেশন হচ্ছে...</span>
-            <span v-else>🚀 একাউন্ট তৈরি করুন</span>
-          </button>
-        </form>
-
-        <p class="text-center mt-6 text-sm" style="color: var(--color-text-secondary);">
-          ইতিমধ্যে একাউন্ট আছে?
-          <router-link to="/login" style="color: var(--color-neon-orange); font-weight: 600;">লগইন করুন</router-link>
-        </p>
-      </div>
+      <h1 class="text-3xl font-black gradient-text-orange mb-2" style="font-family: var(--font-display);">Create Account</h1>
+      <p class="text-sm" style="color: var(--color-text-secondary);">ব্যাটলজোনে জয়েন করে আপনার গেমিং ক্যারিয়ার শুরু করুন</p>
     </div>
+
+    <!-- Main Card -->
+    <div class="glass-card p-6 md:p-8 shadow-xl">
+      <form @submit.prevent="handleRegister" class="space-y-4">
+        
+        <!-- Full Name -->
+        <div>
+          <label class="block text-sm font-bold mb-1.5 ml-1" style="color: var(--color-text-secondary);">নাম</label>
+          <div class="relative">
+            <User :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-muted" style="color: var(--color-text-muted);" />
+            <input v-model="form.name" type="text" placeholder="আপনার পুরো নাম লিখুন" 
+                   class="input-dark pl-12" required :disabled="loading" />
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm font-bold mb-1.5 ml-1" style="color: var(--color-text-secondary);">ফোন নম্বর</label>
+          <div class="relative">
+            <Phone :size="18" class="absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--color-text-muted);" />
+            <input v-model="form.phone" type="tel" placeholder="01XXXXXXXXX" 
+                   class="input-dark pl-12" required :disabled="loading" />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-bold mb-1.5 ml-1" style="color: var(--color-text-secondary);">ইমেইল</label>
+          <div class="relative">
+            <Mail :size="18" class="absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--color-text-muted);" />
+            <input v-model="form.email" type="email" placeholder="example@gmail.com" 
+                   class="input-dark pl-12" required :disabled="loading" />
+          </div>
+        </div>
+
+        <!-- Free Fire UID -->
+        <div>
+          <label class="block text-sm font-bold mb-1.5 ml-1" style="color: var(--color-text-secondary);">Free Fire UID</label>
+          <div class="relative">
+            <Gamepad2 :size="18" class="absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--color-text-muted);" />
+            <input v-model="form.ff_uid" type="text" placeholder="আপনার গেম আইডি (UID)" 
+                   class="input-dark pl-12" required :disabled="loading" />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-bold mb-1.5 ml-1" style="color: var(--color-text-secondary);">পাসওয়ার্ড</label>
+          <div class="relative">
+            <Lock :size="18" class="absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--color-text-muted);" />
+            <input v-model="form.password" :type="showPw ? 'text' : 'password'" 
+                   placeholder="শক্তিশালী পাসওয়ার্ড দিন" 
+                   class="input-dark pl-12 pr-12" required :disabled="loading" />
+            <button type="button" @click="showPw = !showPw" class="absolute right-4 top-1/2 -translate-y-1/2 text-muted">
+              <component :is="showPw ? EyeOff : Eye" :size="18" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div v-if="error" class="flex items-center gap-2 p-3 rounded-xl text-sm" 
+             style="background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.2); color: var(--color-neon-red);">
+          <AlertCircle :size="16" />
+          {{ error }}
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-neon w-full h-14 text-lg" :disabled="loading">
+          <Loader2 v-if="loading" class="animate-spin" :size="20" />
+          <span v-else>অ্যাকাউন্ট তৈরি করুন 🚀</span>
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-8">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-dashed" style="border-color: var(--color-border-subtle);"></div></div>
+        <div class="relative flex justify-center text-xs uppercase"><span class="px-3" style="background: var(--color-bg-card); color: var(--color-text-muted);">অথবা সোশ্যাল মিডিয়া</span></div>
+      </div>
+
+      <!-- Social Register -->
+      <div class="grid grid-cols-2 gap-4">
+        <button @click="socialAuth('google')" class="social-btn-premium">
+          <Chrome :size="20" /> Google
+        </button>
+        <button @click="socialAuth('discord')" class="social-btn-premium discord">
+          <Gamepad2 :size="20" /> Discord
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <p class="text-center mt-8 text-sm" style="color: var(--color-text-secondary);">
+        ইতিমধ্যে অ্যাকাউন্ট আছে? 
+        <router-link to="/login" class="font-bold underline" style="color: var(--color-primary);">লগইন করুন</router-link>
+      </p>
+    </div>
+
   </div>
 </template>
 
@@ -93,36 +114,82 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { 
+  User, Mail, Phone, Lock, Gamepad2, UserPlus, 
+  Eye, EyeOff, AlertCircle, Loader2, Chrome 
+} from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const form = ref({
-  name: '', username: '', email: '', phone: '',
-  ff_uid: '', password: '', password_confirmation: '', referral_code: '',
+  name: '',
+  email: '',
+  phone: '',
+  ff_uid: '',
+  password: ''
 })
+
 const loading = ref(false)
-const errors = ref([])
-const success = ref('')
+const error = ref('')
+const showPw = ref(false)
 
 async function handleRegister() {
   loading.value = true
-  errors.value = []
-  success.value = ''
-
+  error.value = ''
   try {
     await authStore.register(form.value)
-    success.value = 'রেজিস্ট্রেশন সফল! Home এ নিয়ে যাচ্ছি...'
-    setTimeout(() => router.push('/'), 1500)
+    router.push('/')
   } catch (err) {
-    const data = err.response?.data
-    if (data?.errors) {
-      errors.value = Object.values(data.errors).flat()
-    } else {
-      errors.value = [data?.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে।']
-    }
+    error.value = err.response?.data?.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।'
   } finally {
     loading.value = false
   }
 }
+
+async function socialAuth(provider) {
+  // logic to redirect to provider
+}
 </script>
+
+<style scoped>
+.register-container {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.social-btn-premium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: white;
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.2s;
+  color: var(--color-text-primary);
+}
+
+.social-btn-premium:hover {
+  background: var(--color-bg-card);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.social-btn-premium.discord {
+  color: #5865f2;
+  border-color: rgba(88,101,242,0.2);
+}
+
+.social-btn-premium.discord:hover {
+  background: rgba(88,101,242,0.05);
+  border-color: #5865f2;
+}
+</style>

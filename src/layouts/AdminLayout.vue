@@ -1,10 +1,35 @@
+<script setup>
+import DefaultLayoutWithVerticalNav from './sneat/DefaultLayoutWithVerticalNav.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+</script>
+
 <template>
-  <div class="min-h-screen flex" style="background-color: var(--color-bg-darkest);">
-    <!-- Admin Sidebar will go here -->
-    <div class="flex-1 flex flex-col">
-      <main class="flex-1 p-6">
-        <slot />
-      </main>
-    </div>
-  </div>
+  <DefaultLayoutWithVerticalNav>
+    <RouterView v-slot="{ Component }">
+      <transition name="fade-slide" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </RouterView>
+  </DefaultLayoutWithVerticalNav>
 </template>
+
+<style lang="scss">
+@use "@layouts/styles/default-layout";
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+</style>

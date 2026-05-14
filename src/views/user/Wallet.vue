@@ -35,12 +35,12 @@
 
     <!-- ── Action Buttons ─────────────────────────────────────────────── -->
     <div class="grid grid-cols-2 gap-3 mb-6">
-      <router-link to="/wallet/deposit"
+      <button @click="openDepositModal"
         class="flex items-center justify-center gap-2 p-4 rounded-xl font-bold text-sm"
         style="background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.3); color: var(--color-neon-green);">
         <ArrowDownCircle :size="18" />
         Deposit
-      </router-link>
+      </button>
       <router-link to="/wallet/withdraw"
         class="flex items-center justify-center gap-2 p-4 rounded-xl font-bold text-sm"
         style="background: rgba(255,69,0,0.12); border: 1px solid rgba(255,69,0,0.3); color: var(--color-neon-orange);">
@@ -112,11 +112,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useWalletStore } from '@/stores/wallet'
+import { useDepositModal } from '@/composables/useDepositModal'
 import api from '@/services/api'
 import {
   Wallet, ArrowDownCircle, ArrowUpCircle, Gift, History,
   ChevronRight, Loader2, Coins, Star, Gem
 } from 'lucide-vue-next'
+
+const { open: openDepositModal } = useDepositModal()
 
 const walletStore = useWalletStore()
 const transactions = ref([])
